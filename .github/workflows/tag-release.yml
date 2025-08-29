@@ -130,21 +130,9 @@ jobs:
           echo "✅ Created major version tag $MAJOR_TAG pointing to $TAG"
 
           # Create GitHub release
-          RELEASE_NOTES="## Release $TAG
-
-          ### 📋 Usage
-          \`\`\`yaml
-          - uses: ${{ github.repository }}@$TAG
-            with:
-              api-key: \${{ secrets.PACKAGIST_API_KEY }}
-              api-secret: \${{ secrets.PACKAGIST_API_SECRET }}
-              package-name: 'vendor/package-name'
-              file-path: 'release.zip'
-          \`\`\`
-
           gh release create "$TAG" \
             --title "Release $TAG" \
-            --notes "$RELEASE_NOTES" \
+            --notes "Release $TAG" \
             --latest
 
           echo ""
