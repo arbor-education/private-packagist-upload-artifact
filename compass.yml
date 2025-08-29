@@ -1,0 +1,16 @@
+name: private-packagist-upload-artifact
+id: ari:cloud:compass:11899d26-bb2d-40fc-ab1f-b3684abeac91:component/7cbd16b6-ee7a-4db3-95bc-23ec0c19fefd/34fc2eb8-6a7c-433b-88e9-c9c4cf31c884
+description: A github action to upload an artifact to private packagist
+configVersion: 1
+typeId: SERVICE
+fields:
+  tier: 4
+links:
+  - name: null
+    type: REPOSITORY
+    url: https://github.com/arbor-education/private-packagist-upload-artifact
+relationships:
+  DEPENDS_ON: []
+labels:
+  - source:github
+customFields: null
