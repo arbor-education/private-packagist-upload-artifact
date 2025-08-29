@@ -38,6 +38,8 @@ jobs:
 
       - name: Commit dist if changed
         id: commit-dist
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -74,6 +76,8 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Create tag and release
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           # Get current version from package.json
           VERSION=$(node -p "require('./package.json').version")
@@ -109,32 +113,32 @@ jobs:
           CURRENT_VERSION=$(echo $TAG | sed 's/^v//')
           MAJOR_VERSION=$(echo $CURRENT_VERSION | cut -d. -f1)
           MAJOR_TAG="v$MAJOR_VERSION"
-          
+
           echo "Creating/updating major version tag: $MAJOR_TAG"
-          
+
           # Delete existing major tag if it exists (locally and remotely)
           if git tag -l "$MAJOR_TAG" | grep -q "$MAJOR_TAG"; then
             echo "Deleting existing major tag $MAJOR_TAG"
             git tag -d "$MAJOR_TAG" || true
             git push origin :"refs/tags/$MAJOR_TAG" || true
           fi
-          
+
           # Create and force push the major version tag
           git tag "$MAJOR_TAG"
           git push origin "$MAJOR_TAG"
-          
+
           echo "✅ Created major version tag $MAJOR_TAG pointing to $TAG"
 
           # Create GitHub release
           RELEASE_NOTES="## 🚀 Release $TAG
-          
+
           **Automated release with compiled distribution**
-          
+
           ### 📦 What's Included
           - Compiled action in \`dist/\` directory
           - All dependencies bundled
           - Ready for production use
-          
+
           ### 📋 Usage
           \`\`\`yaml
           - uses: ${{ github.repository }}@$TAG
@@ -144,15 +148,15 @@ jobs:
               package-name: 'vendor/package-name'
               file-path: 'release.zip'
           \`\`\`
-          
+
           ### 🏪 GitHub Actions Marketplace
           This action is ready for marketplace publishing. Visit the release page to publish to the marketplace."
-          
+
           gh release create "$TAG" \
             --title "🚀 Release $TAG" \
             --notes "$RELEASE_NOTES" \
             --latest
-          
+
           echo ""
           echo "✅ Release $TAG created successfully!"
           echo "📦 Release URL: https://github.com/${{ github.repository }}/releases/tag/$TAG"
