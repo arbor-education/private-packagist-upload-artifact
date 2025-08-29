@@ -1,6 +1,6 @@
 {
   "name": "private-packagist-upload-action",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "GitHub Action to upload artifacts to Private Packagist",
   "main": "index.js",
   "scripts": {
