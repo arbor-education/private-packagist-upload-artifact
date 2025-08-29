@@ -1,6 +1,6 @@
 # Private Packagist Upload Artifact Action
 
-A GitHub Action to upload artifacts to Private Packagist repositories. This action is built in Node.js and provides the same functionality as the PHP-based upload script, allowing you to upload zip files to Private Packagist without needing PHP in your CI/CD pipeline.
+A GitHub Action to upload artifacts to Private Packagist repositories. This action allows you to upload package files to Private Packagist without needing PHP in your CI/CD pipeline.
 
 ## Features
 
@@ -92,7 +92,8 @@ The action provides detailed error messages for common issues:
 
 - **Node.js**: 18 or higher (action runs on Node.js 20)
 - **GitHub Runner**: ubuntu-latest, windows-latest, or macos-latest
-- **File format**: Currently supports ZIP files (application/zip)
+- **File format**: Supports ZIP (.zip), Gzip (.gz), or Bzip2 (.bz2) files
+- **File size**: Maximum 100 MB per upload
 
 ## Troubleshooting
 
@@ -119,6 +120,11 @@ The action provides detailed error messages for common issues:
 5. **"Package not found" or similar errors**
    - This often indicates the repository hasn't been initialized yet
    - See [Repository Initialization](#repository-initialization) for required setup steps
+
+6. **"File too large" or upload errors**
+   - Ensure your file is under 100 MB
+   - Check that your file format is ZIP (.zip), Gzip (.gz), or Bzip2 (.bz2)
+   - Verify the file isn't corrupted and can be opened normally
 
 ### Debug Mode
 
