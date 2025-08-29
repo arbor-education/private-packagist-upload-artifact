@@ -130,14 +130,7 @@ jobs:
           echo "✅ Created major version tag $MAJOR_TAG pointing to $TAG"
 
           # Create GitHub release
-          RELEASE_NOTES="## 🚀 Release $TAG
-
-          **Automated release with compiled distribution**
-
-          ### 📦 What's Included
-          - Compiled action in \`dist/\` directory
-          - All dependencies bundled
-          - Ready for production use
+          RELEASE_NOTES="## Release $TAG
 
           ### 📋 Usage
           \`\`\`yaml
@@ -149,16 +142,12 @@ jobs:
               file-path: 'release.zip'
           \`\`\`
 
-          ### 🏪 GitHub Actions Marketplace
-          This action is ready for marketplace publishing. Visit the release page to publish to the marketplace."
-
           gh release create "$TAG" \
-            --title "🚀 Release $TAG" \
+            --title "Release $TAG" \
             --notes "$RELEASE_NOTES" \
             --latest
 
           echo ""
           echo "✅ Release $TAG created successfully!"
           echo "📦 Release URL: https://github.com/${{ github.repository }}/releases/tag/$TAG"
-          echo "🏪 To publish to marketplace: visit the release page and click 'Publish this Action'"
           echo ""
