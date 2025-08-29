@@ -1,0 +1,160 @@
+name: Tag and Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-commit:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    outputs:
+      dist_updated: ${{ steps.commit-dist.outputs.dist_updated }}
+      new_sha: ${{ steps.commit-dist.outputs.new_sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build distribution
+        run: npm run build
+
+      - name: Commit dist if changed
+        id: commit-dist
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Add dist directory
+          git add -f dist/
+
+          # Only commit if there are changes
+          if ! git diff --staged --quiet; then
+            git commit -m "build: update dist for release
+
+            [skip ci] Automated build commit from github-actions"
+            git push origin main
+
+            echo "✅ Built and committed dist/ directory (SHA: $NEW_SHA)"
+          else
+            echo "✅ No changes to dist/ directory"
+          fi
+
+  tag-and-release:
+    needs: build-and-commit
+    runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/main'}}
+    steps:
+      - name: Checkout updated main with dist/
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create tag and release
+        run: |
+          # Get current version from package.json
+          VERSION=$(node -p "require('./package.json').version")
+          TAG="v$VERSION"
+
+          # Check if tag already exists
+          if git tag -l "$TAG" | grep -q "$TAG"; then
+            echo "Tag $TAG already exists, incrementing patch version..."
+            # Extract version parts
+            MAJOR=$(echo $VERSION | cut -d. -f1)
+            MINOR=$(echo $VERSION | cut -d. -f2)
+            PATCH=$(echo $VERSION | cut -d. -f3)
+
+            # Increment patch version
+            NEW_PATCH=$((PATCH + 1))
+            NEW_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
+            NEW_TAG="v$NEW_VERSION"
+
+            # Update package.json
+            npm version $NEW_VERSION --no-git-tag-version
+            git add package.json package-lock.json
+            git commit -m "bump: version to $NEW_VERSION [skip ci]"
+            git push origin main
+
+            TAG="$NEW_TAG"
+          fi
+
+          # Create and push tag
+          git tag "$TAG"
+          git push origin "$TAG"
+
+          # Extract major version and create/update major version tag
+          CURRENT_VERSION=$(echo $TAG | sed 's/^v//')
+          MAJOR_VERSION=$(echo $CURRENT_VERSION | cut -d. -f1)
+          MAJOR_TAG="v$MAJOR_VERSION"
+          
+          echo "Creating/updating major version tag: $MAJOR_TAG"
+          
+          # Delete existing major tag if it exists (locally and remotely)
+          if git tag -l "$MAJOR_TAG" | grep -q "$MAJOR_TAG"; then
+            echo "Deleting existing major tag $MAJOR_TAG"
+            git tag -d "$MAJOR_TAG" || true
+            git push origin :"refs/tags/$MAJOR_TAG" || true
+          fi
+          
+          # Create and force push the major version tag
+          git tag "$MAJOR_TAG"
+          git push origin "$MAJOR_TAG"
+          
+          echo "✅ Created major version tag $MAJOR_TAG pointing to $TAG"
+
+          # Create GitHub release
+          RELEASE_NOTES="## 🚀 Release $TAG
+          
+          **Automated release with compiled distribution**
+          
+          ### 📦 What's Included
+          - Compiled action in \`dist/\` directory
+          - All dependencies bundled
+          - Ready for production use
+          
+          ### 📋 Usage
+          \`\`\`yaml
+          - uses: ${{ github.repository }}@$TAG
+            with:
+              api-key: \${{ secrets.PACKAGIST_API_KEY }}
+              api-secret: \${{ secrets.PACKAGIST_API_SECRET }}
+              package-name: 'vendor/package-name'
+              file-path: 'release.zip'
+          \`\`\`
+          
+          ### 🏪 GitHub Actions Marketplace
+          This action is ready for marketplace publishing. Visit the release page to publish to the marketplace."
+          
+          gh release create "$TAG" \
+            --title "🚀 Release $TAG" \
+            --notes "$RELEASE_NOTES" \
+            --latest
+          
+          echo ""
+          echo "✅ Release $TAG created successfully!"
+          echo "📦 Release URL: https://github.com/${{ github.repository }}/releases/tag/$TAG"
+          echo "🏪 To publish to marketplace: visit the release page and click 'Publish this Action'"
+          echo ""

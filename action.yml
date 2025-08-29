@@ -1,0 +1,39 @@
+name: 'Private Packagist Upload'
+description: 'Upload artifacts to Private Packagist repositories. Pure Node.js implementation with HMAC authentication for secure artifact uploads.'
+author: 'Arbor Education'
+
+branding:
+  icon: 'upload'
+  color: 'blue'
+
+inputs:
+  api-key:
+    description: 'Private Packagist API key (use secrets.PACKAGIST_API_KEY)'
+    required: true
+  api-secret:
+    description: 'Private Packagist API secret (use secrets.PACKAGIST_API_SECRET)'
+    required: true
+  package-name:
+    description: 'Name of the package to upload to (e.g., "vendor/package-name")'
+    required: true
+  file-path:
+    description: 'Path to the artifact file to upload'
+    required: true
+  private-packagist-url:
+    description: 'Private Packagist instance URL'
+    required: false
+    default: 'https://packagist.com'
+
+outputs:
+  success:
+    description: 'Whether the upload was successful'
+  package-name:
+    description: 'The name of the package that was uploaded to'
+  upload-result:
+    description: 'JSON response from the upload API call'
+  package-url:
+    description: 'URL of the uploaded package'
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

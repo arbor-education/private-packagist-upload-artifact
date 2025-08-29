@@ -1,0 +1,19 @@
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.2.0
+  hooks:
+    - id: check-merge-conflict
+    - id: trailing-whitespace
+    - id: end-of-file-fixer
+    - id: check-json
+    - id: check-added-large-files
+    - id: check-yaml
+
+- repo: local
+  hooks:
+    - id: eslint
+      name: ESLint
+      description: Run ESLint on JavaScript files
+      entry: npx eslint --fix
+      language: system
+      files: \.js$
