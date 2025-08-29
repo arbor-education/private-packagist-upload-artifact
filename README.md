@@ -17,7 +17,7 @@ A GitHub Action to upload artifacts to Private Packagist repositories. This acti
 
 ```yaml
 - name: Upload to Private Packagist
-  uses: arbor-education/gha.private-packagist-upload-artifact@main
+  uses: arbor-education/private-packagist-upload-artifact@v1
   with:
     api-key: ${{ secrets.PACKAGIST_API_KEY }}
     api-secret: ${{ secrets.PACKAGIST_API_SECRET }}
