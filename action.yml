@@ -1,10 +1,10 @@
-name: 'Private Packagist Upload'
-description: 'Upload artifacts to Private Packagist repositories. Pure Node.js implementation with HMAC authentication for secure artifact uploads.'
+name: 'Private Packagist Upload Artifact'
+description: 'Upload artifacts to Private Packagist repositories'
 author: 'Arbor Education'
 
 branding:
   icon: 'upload'
-  color: 'blue'
+  color: 'green'
 
 inputs:
   api-key:
